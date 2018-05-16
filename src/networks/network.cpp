@@ -90,6 +90,9 @@ Network * Network::New(const Configuration & config, const string & name)
   } else if ( topo == "cmesh" ) {
     CMesh::RegisterRoutingFunctions() ;
     n = new CMesh( config, name );
+  } else if ( topo == "dragontree" ) {
+    DragontTree::RegisterRoutingFunctions() ;
+    n = new DragonTree( config, name );
   } else if ( topo == "fly" ) {
     KNFly::RegisterRoutingFunctions() ;
     n = new KNFly( config, name );
