@@ -35,4 +35,49 @@
 #include "misc_utils.hpp"
 #include "globals.hpp"
 
+DragonTree::DragonTree( const Configuration &config, const string & name ) : Network( config, name )
+{
+  //make a config file for flat_fly
+  Configuration flat_fly_config;
+  //instantiate a flat_fly
+  flat_fly_ptr = new FlatFlyOnChip(&flat_fly_config, name);
+  //make a config file for fat_tree
+  Configuration fat_tree_config;
+  //instantiate a fat_tree
+  fat_tree_ptr = new FatTree(&fat_tree_config name);
+}
+
+void DragonTree::WriteFlit( Flit *f, int source )
+{
+
+  /*
+  assert( ( source >= 0 ) && ( source < _nodes ) );
+  _inject[source]->Send(f);
+  */
+}
+
+Flit *DragonTree::ReadFlit( int dest )
+{
+  /*
+  assert( ( dest >= 0 ) && ( dest < _nodes ) );
+  return _eject[dest]->Receive();
+  */
+}
+
+void DragonTree::WriteCredit( Credit *c, int dest )
+{
+  /*
+  assert( ( dest >= 0 ) && ( dest < _nodes ) );
+  _eject_cred[dest]->Send(c);
+  */
+}
+
+Credit *DragonTree::ReadCredit( int source )
+{
+  /*
+  assert( ( source >= 0 ) && ( source < _nodes ) );
+  return _inject_cred[source]->Receive();
+  */
+}
+
 

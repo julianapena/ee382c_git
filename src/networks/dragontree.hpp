@@ -33,6 +33,9 @@
 
 class DragonTreeNew : public Network {
  
+  Network *flat_fly_ptr;
+  Network *fat_tree_ptr;
+
 public:
   DragonTreeNew( const Configuration &config, const string & name );
 
