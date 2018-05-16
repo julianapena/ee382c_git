@@ -31,39 +31,18 @@
 #include "network.hpp"
 #include "routefunc.hpp"
 
-class DragonFlyNew : public Network {
-
-  int _m;
-  int _n;
-  int _r;
-  int _k;
-  int _p, _a, _g;
-  int _radix;
-  int _net_size;
-  int _stageout;
-  int _numinput;
-  int _stages;
-  int _num_of_switch;
-  int _grp_num_routers;
-  int _grp_num_nodes;
-
-
-  void _ComputeSize( const Configuration &config );
-  void _BuildNet( const Configuration &config );
-
-
+class DragonTreeNew : public Network {
  
 public:
   DragonTreeNew( const Configuration &config, const string & name );
 
-  int GetN( ) const;
-  int GetK( ) const;
+  void WriteFlit( Flit *f, int source );
+  Flit *ReadFlit( int dest );
 
-  double Capacity( ) const;
-  static void RegisterRoutingFunctions();
-  void InsertRandomFaults( const Configuration &config );
+  void    WriteCredit( Credit *c, int dest );
+  Credit *ReadCredit( int source );
+
 
 };
-int dragonfly_port(int rID, int source, int dest);
 
 #endif 
