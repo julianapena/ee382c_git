@@ -28,15 +28,24 @@
 #ifndef _DragonTree_HPP_
 #define _DragonTree_HPP_
 
+#include <map>
+#include <queue>
+
 #include "network.hpp"
 #include "flatfly_onchip.hpp"
 #include "fattree.hpp"
 #include "routefunc.hpp"
 
+typedef std::map<int, bool> PacketToSubnetworkMap;
+typedef std::queue<Flit *> FlitQ;
+typedef std::map<int, FlitQ> DestToQMap;
+
 class DragonTree : public Network {
  
   Network *flat_fly_ptr;
   Network *fat_tree_ptr;
+  PacketToSubnetworkMap packetMap;
+  DestToQMap outputQMap;
 
   void _ComputeSize( const Configuration &config );
   void _BuildNet( const Configuration &config );

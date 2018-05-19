@@ -28,6 +28,7 @@
 
 #include "booksim.hpp"
 #include <vector>
+#include <map>
 #include <sstream>
 
 #include "dragontree.hpp"
@@ -51,6 +52,10 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   // as such in the config file. E.g. 
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
+
+  for (int m; m < _nodes; ++m){
+    outputQMap[m] = FlitQ();
+  }
 }
 
 void DragonTree::RegisterRoutingFunctions() {
@@ -67,34 +72,55 @@ void DragonTree::_ComputeSize( const Configuration &config ) {
 
 void DragonTree::WriteFlit( Flit *f, int source )
 {
-
-  
   assert( ( source >= 0 ) && ( source < _nodes ) );
-
+  if(f->head){
+    if (true){ //replace condition with some routing logic
+      packetMap[f->pid] = true;
+      flat_fly_ptr->WriteFlit(f,source);
+    } else {
+      packetMap[f->pid] = false;
+      fat_tree_ptr->WriteFlit(f,source);
+    }
+  } else { //not head flit
+    if(packet_map.find(f->pid)->second){
+      flat_fly_ptr->WriteFlit(f,source);
+    } else {
+      fat_tree_ptr->WriteFlit(f,source);
+    }
+  }
 }
 
 Flit *DragonTree::ReadFlit( int dest )
 {
-  /*
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
-  return _eject[dest]->Receive();
-  */
+
+  FlitQ outputQ = outputQMap[dest];
+  
+  Flit *fat_tree_eject = fat_tree_ptr->ReadFlit(dest);
+  if (fat_tree_eject != 0) outputQ.push(fat_tree_eject);
+  Flit *flat_fly_eject = flat_fly_ptr->ReadFlit(dest);
+  if (flat_fly_eject != 0) outputQ.push(flat_fly_eject);
+  Flit *toReturn;
+  if (!outputQ.empty()){
+    toReturn = outputQ.front();
+    outputQ.pop();
+  } else {
+    toReturn = 0;
+  }
+  return toReturn;
 }
 
 void DragonTree::WriteCredit( Credit *c, int dest )
 {
-  /*
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
-  _eject_cred[dest]->Send(c);
-  */
+
+  //_eject_cred[dest]->Send(c);
 }
 
 Credit *DragonTree::ReadCredit( int source )
 {
-  /*
   assert( ( source >= 0 ) && ( source < _nodes ) );
-  return _inject_cred[source]->Receive();
-  */
+  //return _inject_cred[source]->Receive();
 }
 
 
