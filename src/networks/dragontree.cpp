@@ -38,13 +38,31 @@
 DragonTree::DragonTree( const Configuration &config, const string & name ) : Network( config, name )
 {
   //make a config file for flat_fly
-  Configuration flat_fly_config;
+  // Configuration flat_fly_config;
   //instantiate a flat_fly
-  flat_fly_ptr = new FlatFlyOnChip(&flat_fly_config, name);
+  // flat_fly_ptr = new FlatFlyOnChip(&flat_fly_config, name);
   //make a config file for fat_tree
-  Configuration fat_tree_config;
+  // Configuration fat_tree_config;
   //instantiate a fat_tree
-  fat_tree_ptr = new FatTree(&fat_tree_config name);
+  // fat_tree_ptr = new FatTree(&fat_tree_config name);
+
+  // Delegate config parsing task to subnetworks to avoid realloc. 
+  // Fields which are relevant to only FlatFLy or FatTree are prefixed
+  // as such in the config file. E.g. 
+  flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
+  fat_tree_ptr = new FatTree(config, "fattree");
+}
+
+void DragonTree::RegisterRoutingFunctions() {
+  
+}
+
+void DragonTree::_BuildNet( const Configuration &config ) {
+
+}
+
+void DragonTree::_ComputeSize( const Configuration &config ) {
+
 }
 
 void DragonTree::WriteFlit( Flit *f, int source )
@@ -52,12 +70,7 @@ void DragonTree::WriteFlit( Flit *f, int source )
 
   
   assert( ( source >= 0 ) && ( source < _nodes ) );
-  //_inject[source]->Send(f);
-  if (flit->head){
 
-  } else {
-
-  }
 }
 
 Flit *DragonTree::ReadFlit( int dest )

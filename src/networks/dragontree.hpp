@@ -29,15 +29,20 @@
 #define _DragonTree_HPP_
 
 #include "network.hpp"
+#include "flatfly_onchip.hpp"
+#include "fattree.hpp"
 #include "routefunc.hpp"
 
-class DragonTreeNew : public Network {
+class DragonTree : public Network {
  
   Network *flat_fly_ptr;
   Network *fat_tree_ptr;
 
+  void _ComputeSize( const Configuration &config );
+  void _BuildNet( const Configuration &config );
+
 public:
-  DragonTreeNew( const Configuration &config, const string & name );
+  DragonTree( const Configuration &config, const string & name );
 
   void WriteFlit( Flit *f, int source );
   Flit *ReadFlit( int dest );
@@ -45,7 +50,7 @@ public:
   void    WriteCredit( Credit *c, int dest );
   Credit *ReadCredit( int source );
 
-
+  static void RegisterRoutingFunctions();
 };
 
 #endif 
