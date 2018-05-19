@@ -47,6 +47,7 @@
 #include "fattree.hpp"
 #include "anynet.hpp"
 #include "dragonfly.hpp"
+#include "dragontree.hpp"
 
 
 Network::Network( const Configuration &config, const string & name ) :
@@ -91,7 +92,7 @@ Network * Network::New(const Configuration & config, const string & name)
     CMesh::RegisterRoutingFunctions() ;
     n = new CMesh( config, name );
   } else if ( topo == "dragontree" ) {
-    DragontTree::RegisterRoutingFunctions() ;
+    DragonTree::RegisterRoutingFunctions() ;
     n = new DragonTree( config, name );
   } else if ( topo == "fly" ) {
     KNFly::RegisterRoutingFunctions() ;
@@ -130,8 +131,8 @@ Network * Network::New(const Configuration & config, const string & name)
 void Network::_Alloc( )
 {
   assert( ( _size != -1 ) && 
-	  ( _nodes != -1 ) && 
-	  ( _channels != -1 ) );
+    ( _nodes != -1 ) && 
+    ( _channels != -1 ) );
 
   _routers.resize(_size);
   gNodes = _nodes;
