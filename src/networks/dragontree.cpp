@@ -50,10 +50,14 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
 void DragonTree::WriteFlit( Flit *f, int source )
 {
 
-  /*
+  
   assert( ( source >= 0 ) && ( source < _nodes ) );
-  _inject[source]->Send(f);
-  */
+  //_inject[source]->Send(f);
+  if (flit->head){
+
+  } else {
+
+  }
 }
 
 Flit *DragonTree::ReadFlit( int dest )
