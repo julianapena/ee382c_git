@@ -74,11 +74,13 @@ void DragonTree::WriteFlit( Flit *f, int source )
   */ 
 }
 
+// Returns output flit if available.
+// Traffic manager tracks which packages have been accepted.
 Flit *DragonTree::ReadFlit( int dest )
 {
   /*
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
-  return _eject[dest]->Receive();
+  return _eject[dest]->Receive(); 
   */
 }
 
@@ -96,6 +98,8 @@ Credit *DragonTree::ReadCredit( int source )
   assert( ( source >= 0 ) && ( source < _nodes ) );
   return _inject_cred[source]->Receive();
   */
+
+  pop from queue - last written network
 }
 
 
