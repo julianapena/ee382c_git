@@ -112,6 +112,8 @@ TrafficManager::TrafficManager( const Configuration &config, const vector<Networ
         }
     }
 
+    cout << "trafficmanager.cpp : DONE const routing.\n";
+
     // ============ Traffic ============ 
 
     _classes = config.GetInt("classes");
@@ -231,12 +233,15 @@ TrafficManager::TrafficManager( const Configuration &config, const vector<Networ
         _traffic_pattern[c] = TrafficPattern::New(_traffic[c], _nodes, &config);
         _injection_process[c] = InjectionProcess::New(injection_process[c], _nodes, _load[c], &config);
     }
+    cout << "trafficmanager.cpp : DONE traffic.\n";
 
     // ============ Injection VC states  ============ 
 
     _buf_states.resize(_nodes);
     _last_vc.resize(_nodes);
     _last_class.resize(_nodes);
+    cout << "trafficmanager.cpp - vc states : DONE resize.\n";
+    cout << "_nodes:" << _nodes << ", _subnets:" << _subnets << ", classes:" << _classes << endl;
 
     for ( int source = 0; source < _nodes; ++source ) {
         _buf_states[source].resize(_subnets);
@@ -249,11 +254,15 @@ TrafficManager::TrafficManager( const Configuration &config, const vector<Networ
             int vc_alloc_delay = config.GetInt("vc_alloc_delay");
             int sw_alloc_delay = config.GetInt("sw_alloc_delay");
             int router_latency = config.GetInt("routing_delay") + (config.GetInt("speculative") ? max(vc_alloc_delay, sw_alloc_delay) : (vc_alloc_delay + sw_alloc_delay));
-            int min_latency = 1 + _net[subnet]->GetInject(source)->GetLatency() + router_latency + _net[subnet]->GetInjectCred(source)->GetLatency();
+
+            // PER SUGGESTION : Hardcode this number.
+            int min_latency = 4 ;// + _net[subnet]->GetInject(source)->GetLatency() + router_latency + _net[subnet]->GetInjectCred(source)->GetLatency();
+
             bs->SetMinLatency(min_latency);
             _buf_states[source][subnet] = bs;
             _last_vc[source][subnet].resize(_classes, -1);
         }
+
     }
 
 #ifdef TRACK_FLOWS
@@ -267,6 +276,7 @@ TrafficManager::TrafficManager( const Configuration &config, const vector<Networ
     }
 #endif
 
+    cout << "trafficmanager.cpp : DONE vc states.\n";
     // ============ Injection queues ============ 
 
     _qtime.resize(_nodes);
@@ -289,6 +299,7 @@ TrafficManager::TrafficManager( const Configuration &config, const vector<Networ
 
     _hold_switch_for_packet = config.GetInt("hold_switch_for_packet");
 
+    cout << "trafficmanager.cpp : DONE injection queues.\n";
     // ============ Simulation parameters ============ 
 
     _total_sims = config.GetInt( "sim_count" );
@@ -963,11 +974,14 @@ void TrafficManager::_Step( )
     }
 
     vector<map<int, Flit *> > flits(_subnets);
+
+    cout << "ABOUT TO READ FLIT/CREDIT\n";
   
     for ( int subnet = 0; subnet < _subnets; ++subnet ) {
         for ( int n = 0; n < _nodes; ++n ) {
             Flit * const f = _net[subnet]->ReadFlit( n );
             if ( f ) {
+                cout << "READ FLIT node: " << n << endl; 
                 if(f->watch) {
                     *gWatchOut << GetSimTime() << " | "
                                << "node" << n << " | "
@@ -987,6 +1001,7 @@ void TrafficManager::_Step( )
 
             Credit * const c = _net[subnet]->ReadCredit( n );
             if ( c ) {
+                cout << "READ CREDIT node: " << n << endl;
 #ifdef TRACK_FLOWS
                 for(set<int>::const_iterator iter = c->vc.begin(); iter != c->vc.end(); ++iter) {
                     int const vc = *iter;
@@ -1008,6 +1023,7 @@ void TrafficManager::_Step( )
         _Inject();
     }
 
+    cout << "ABOUT TO WRITE FLIT\n";
     for(int subnet = 0; subnet < _subnets; ++subnet) {
 
         for(int n = 0; n < _nodes; ++n) {
@@ -1229,17 +1245,23 @@ void TrafficManager::_Step( )
 #ifdef TRACK_FLOWS
                 ++_injected_flits[c][n];
 #endif
-	
+	               
+                cout << "WRITING FLIT: "<<  endl;
+                cout << *f;
+                cout << "node: " << n << endl;
                 _net[subnet]->WriteFlit(f, n);
 	
             }
         }
     }
 
+    cout << "ABOUT TO WRITE CREDIT\n";
+
     for(int subnet = 0; subnet < _subnets; ++subnet) {
         for(int n = 0; n < _nodes; ++n) {
             map<int, Flit *>::const_iterator iter = flits[subnet].find(n);
             if(iter != flits[subnet].end()) {
+                cout << "WRITING Credit node: " << n << endl;
                 Flit * const f = iter->second;
 
                 f->atime = _time;
@@ -1250,20 +1272,27 @@ void TrafficManager::_Step( )
                                << " into subnet " << subnet 
                                << "." << endl;
                 }
+                cout << "WRITING Credit node: " << n << endl;
                 Credit * const c = Credit::New();
                 c->vc.insert(f->vc);
                 _net[subnet]->WriteCredit(c, n);
+                cout << "Wrote Credit node: "<< n << endl;
 	
 #ifdef TRACK_FLOWS
                 ++_ejected_flits[f->cl][n];
 #endif
-	
+                cout << "retiring this flit node: " << n << endl;
                 _RetireFlit(f, n);
+                cout << "RETIRED this flit node: " << n << endl;
             }
         }
+        cout << " about to eval write out\n";
         flits[subnet].clear();
+        cout << "done clear\n";
         _net[subnet]->Evaluate( );
+        cout << "done eval\n";
         _net[subnet]->WriteOutputs( );
+        cout << "DONE eval write out\n";
     }
 
     ++_time;
@@ -1433,8 +1462,10 @@ bool TrafficManager::_SingleSim( )
         }
     
     
-        for ( int iter = 0; iter < _sample_period; ++iter )
+        for ( int iter = 0; iter < _sample_period; ++iter ) {
+            cout << " DOING A _STEP";
             _Step( );
+        }
     
         //cout << _sim_state << endl;
 

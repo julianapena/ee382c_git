@@ -34,6 +34,7 @@
 
 #include "booksim.hpp"
 #include "booksim_config.hpp"
+#include <iostream>
 
 BookSimConfig::BookSimConfig( )
 { 
@@ -45,6 +46,7 @@ BookSimConfig::BookSimConfig( )
   _int_map["fb_n"] = 3;
   _int_map["fb_c"] = 4;
   _int_map["inject_route"] = 0;
+  std::cout << "CONFIG BOOKSIM\n";
 
   //========================================================
   // Network options
@@ -323,6 +325,8 @@ BookSimConfig::BookSimConfig( )
 
   //==================Network file===========================
   AddStrField("network_file","");
+
+  std::cout << "END CONFIG BOOKSIM*******\n";
 }
 
 

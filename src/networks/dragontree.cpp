@@ -97,6 +97,7 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
 
   lastSubnetOut.resize(_nodes);
   sourceToNetwork.resize(_nodes);
+  cout << " done constructing DragonTree*****\n";
 
 }
 
@@ -132,7 +133,7 @@ void DragonTree::WriteFlit( Flit *f, int source )
       case OBLIVIOUS: ffly_network = rand() % 2; break;
       case ADAPTIVE: ffly_network = adaptive_inject_routing(f, source); break;
     }
-
+    ffly_network = 1;
     if (ffly_network){
       packetMap[f->pid] = FLATFLY_INDEX;
       flat_fly_ptr->WriteFlit(f,source);
@@ -157,12 +158,15 @@ void DragonTree::WriteFlit( Flit *f, int source )
   }
 }
 
+// Round robin scheduler for next subnetwork vc to read from.
 NetAndVC DragonTree::nextNetAndVC(NetAndVC currNetAndVC)
 {
   if(currNetAndVC.subnet == FLATFLY_INDEX){
-    ++currNetAndVC.subnet;
+    currNetAndVC.subnet = FATTREE_INDEX;
+    // ++currNetAndVC.subnet;
     return currNetAndVC;
-  } else {
+  } else { 
+    // currently looking at fat tree vc. Proceed to next flatfly vc.
     currNetAndVC.subnet = FLATFLY_INDEX;
     ++currNetAndVC.vc;
     if (currNetAndVC.vc == num_vcs){
@@ -189,18 +193,30 @@ Flit *DragonTree::ReadFlit( int dest )
   Flit * toReturn;
   NetAndVC original = currSrcToManager[dest];
   NetAndVC outSrc = original; 
+
+  // Find the next non-empty vc  in this terminal to read a flit from
+  // or just stick with the current vc from same ntwk if there's no
+  // other flits to take from other vcs of this terminal.
   while (outputQs[dest][outSrc.subnet][outSrc.vc].empty()){
     outSrc = nextNetAndVC(outSrc);
     if (outSrc.subnet == original.subnet && outSrc.vc == original.vc) break;
   }
+
   currSrcToManager[dest] = outSrc;
   if (!outputQs[dest][outSrc.subnet][outSrc.vc].empty()){
+    // pop from the appropriate queue (dest,subntwk,vc)
     toReturn = outputQs[dest][outSrc.subnet][outSrc.vc].front();
     outputQs[dest][outSrc.subnet][outSrc.vc].pop();
   } else {
+    // return null flit if nothing to read.
     toReturn = 0;
   }
-  lastSubnetOut[dest] = outSrc.subnet;
+
+  // update which subntwk this destination read from
+  // to give the corresponding read credit.
+  lastSubnetOut[dest] = outSrc.subnet; 
+
+  // Alternate if at tail.
   if (toReturn){
     if (toReturn->tail){
       currSrcToManager[dest] = nextNetAndVC(outSrc);
@@ -228,9 +244,11 @@ Credit *DragonTree::ReadCredit( int source )
 
   if (lastSubnetOut[source] == FLATFLY_INDEX) {
     // flat fly case.
+    cout << "Read credit flat\n";
     return flat_fly_ptr->ReadCredit(source);
   } else {
     // fat tree case
+    cout << "Read credit ftree\n";
     return fat_tree_ptr->ReadCredit(source);    
   }
 }

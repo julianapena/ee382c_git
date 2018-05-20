@@ -107,18 +107,23 @@ bool Simulate( BookSimConfig const & config )
    *add an else if statement with the name of the network
    */
   net.resize(subnets);
+  cout << " CONTSTRUCTING NETWKS!!!!!\n";
   for (int i = 0; i < subnets; ++i) {
     ostringstream name;
     name << "network_" << i;
     net[i] = Network::New( config, name.str() );
   }
+  cout << "\ndone: CONTSTRUCTING NETWKS!!!!!\n";
 
   /*tcc and characterize are legacy
    *not sure how to use them 
    */
 
+  cout << "TrafficManager TURN !!!!\n";
   assert(trafficManager == NULL);
+  cout << "TrafficManager ASSERTED !!!!\n";
   trafficManager = TrafficManager::New( config, net ) ;
+  cout << "TrafficManager CONTSTRUCTED !!!!\n";
 
   /*Start the simulation run
    */
@@ -127,6 +132,7 @@ bool Simulate( BookSimConfig const & config )
   struct timeval start_time, end_time; /* Time before/after user code */
   total_time = 0.0;
   gettimeofday(&start_time, NULL);
+  cout << "RUNNING SIM\n";
 
   bool result = trafficManager->Run() ;
 
@@ -165,6 +171,7 @@ int main( int argc, char **argv )
     cerr << "Usage: " << argv[0] << " configfile... [param=value...]" << endl;
     return 0;
  } 
+ cout << "DONE PARSING MAIN***\n";
 
   
   /*initialize routing, traffic, injection functions
