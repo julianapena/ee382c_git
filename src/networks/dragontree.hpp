@@ -25,8 +25,8 @@
                                                                      
                                                                      
                                              
-#ifndef _DragonTree_HPP_
-#define _DragonTree_HPP_
+#ifndef _DRAGONTREE_HPP_
+#define _DRAGONTREE_HPP_
 
 #include <map>
 #include <queue>
@@ -38,6 +38,11 @@
 
 // bool: false - fat tree, true - flat fly
 
+struct NetAndVC{
+  int subnet;
+  int vc;
+};
+
 typedef std::map<int, bool> PacketToSubnetworkMap;
 typedef std::queue<Flit *> FlitQ;
 typedef std::map<int, FlitQ> DestToQMap;
@@ -46,7 +51,6 @@ typedef std::map<int, std::queue<bool>> DestToNetworkMap;
 typedef std::vector<FlitQ> VCToQ;
 typedef std::vector<VCToQ> SubToVCQ;
 typedef std::vector<SubToVCQ> NodeToSubToVCQ;
-typedef std::pair<int,int> NetAndVC;
 typedef std::vector<NetAndVC> CurrentOutputSource;
 
 class DragonTree : public Network {
@@ -57,6 +61,7 @@ class DragonTree : public Network {
   DestToQMap outputQMap;
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
+  std::vector<bool> lastWasTail;
 
   // keep track of latency foor adaptive routing.
   int flat_fly_lat;
