@@ -60,6 +60,10 @@ class DragonTree : public Network {
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
 
+  // keep track of latency foor adaptive routing.
+  int flat_fly_lat;
+  int fat_tree_lat;
+
   void _ComputeSize( const Configuration &config );
   void _BuildNet( const Configuration &config );
 
@@ -74,5 +78,10 @@ public:
 
   static void RegisterRoutingFunctions();
 };
+
+void adaptive_inject_routing(Flit *f, int source);
+
+void dragontree_routing( const Router *r, const Flit *f, int in_channel, 
+      OutputSet *outputs, bool inject );
 
 #endif 
