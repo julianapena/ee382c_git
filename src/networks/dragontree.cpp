@@ -48,8 +48,16 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   // Delegate config parsing task to subnetworks to avoid realloc. 
   // Fields which are relevant to only FlatFLy or FatTree are prefixed
   // as such in the config file. E.g. 
+
+  std::cout << "HELLO OOOOOOO\n";
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
+
+  std::cout << "nodes are " << _nodes << std::endl;
+  outputQs.resize(_nodes);
+  currSrcToManager.resize(_nodes);
+  lastSubnetOut.resize(_nodes);
+  sourceToNetwork.resize(_nodes);
 
   _ComputeSize(config);
 
@@ -68,17 +76,12 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
     currSrcToManager[i].vc = 0;
   }
 
-  outputQs.resize(_nodes);
-  currSrcToManager.resize(_nodes);
-  lastSubnetOut.resize(_nodes);
-  sourceToNetwork.resize(_nodes);
-
   flat_fly_lat = 0;
   fat_tree_lat = 0;
 }
 
 void DragonTree::RegisterRoutingFunctions() {
-  gRoutingFunctionMap["dragontree_routing"] = &dragontree_routing;
+  gRoutingFunctionMap["xyyx_dragontree"] = &xyyx_dragontree;
 }
 
 void DragonTree::_BuildNet( const Configuration &caonfig ) {
@@ -87,7 +90,10 @@ void DragonTree::_BuildNet( const Configuration &caonfig ) {
 
 void DragonTree::_ComputeSize( const Configuration &config ) {
   num_vcs = config.GetInt("num_vcs");
-  _inject_route =  config.GetInt("inject_route");
+  _inject_route =  config.GetInt("inject_route"); 
+
+  // _k = flat_fly_ptr->GetK();
+  _nodes = flat_fly_ptr->GetNodes();
 }
 
 void DragonTree::WriteFlit( Flit *f, int source )
@@ -240,7 +246,7 @@ bool DragonTree::adaptive_inject_routing(Flit *f, int source) {
 }
 
 // To bypass traffic manager routing function
-void dragontree_routing( const Router *r, const Flit *f, int in_channel, 
+void xyyx_dragontree( const Router *r, const Flit *f, int in_channel, 
       OutputSet *outputs, bool inject ) {
   xyyx_flatfly(r, f, in_channel, outputs, inject);
 }

@@ -293,6 +293,10 @@ void FlatFlyOnChip::_BuildNet( const Configuration &config )
   }
 }
 
+int FlatFlyOnChip::GetNodes( ) const
+{
+  return _nodes;
+}
 
 int FlatFlyOnChip::GetN( ) const
 {

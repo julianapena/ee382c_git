@@ -13,8 +13,8 @@ fb_n  = 3;
 
 // x  = 4;
 // y  = 4;
-// xr = 2;
-// yr = 2;
+xr = 2;
+yr = 2;
 ////////////////////////////////////////////////////////////////////////////////
 
 // Routing into subnetworks
@@ -23,7 +23,9 @@ fb_n  = 3;
 
 injection_rate = 0.1;
 
-routing_function = dragontree_routing;
+topology = dragontree;
+// routing_function = xyyx_flatfly;
+routing_function = xyyx;
 
 
 // Q3

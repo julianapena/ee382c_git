@@ -58,6 +58,7 @@ public:
   FlatFlyOnChip( const Configuration &config, const string & name );
 
   int GetN( ) const;
+  int GetNodes( ) const;
   int GetK( ) const;
 
   static void RegisterRoutingFunctions() ;

@@ -57,8 +57,8 @@ class DragonTree : public Network {
   int num_vcs;
   int _inject_route;
  
-  Network *flat_fly_ptr;
-  Network *fat_tree_ptr;
+  FlatFlyOnChip *flat_fly_ptr;
+  FatTree *fat_tree_ptr;
   PacketToSubnetworkMap packetMap;
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
@@ -93,7 +93,7 @@ public:
 };
 
 
-void dragontree_routing( const Router *r, const Flit *f, int in_channel, 
+void xyyx_dragontree( const Router *r, const Flit *f, int in_channel, 
       OutputSet *outputs, bool inject );
 
 #endif 
