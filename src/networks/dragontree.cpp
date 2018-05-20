@@ -36,25 +36,29 @@
 #include "misc_utils.hpp"
 #include "globals.hpp"
 
+#define FLATFLY_INDEX   0
+#define FATTREE_INDEX   1
+#define NUM_SUBNETWORS  2
+
 DragonTree::DragonTree( const Configuration &config, const string & name ) : Network( config, name )
 {
-  //make a config file for flat_fly
-  // Configuration flat_fly_config;
-  //instantiate a flat_fly
-  // flat_fly_ptr = new FlatFlyOnChip(&flat_fly_config, name);
-  //make a config file for fat_tree
-  // Configuration fat_tree_config;
-  //instantiate a fat_tree
-  // fat_tree_ptr = new FatTree(&fat_tree_config name);
-
   // Delegate config parsing task to subnetworks to avoid realloc. 
   // Fields which are relevant to only FlatFLy or FatTree are prefixed
   // as such in the config file. E.g. 
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
 
-  for (int m; m < _nodes; ++m){
-    outputQMap[m] = FlitQ();
+  for (int m = 0; m < _nodes; ++m){ //init output queues
+    outputQs[m] = SubToVCQ();
+    for (int n = 0; n < 2; ++n){
+      outputQs[m][n] = VCToQ();
+      for (int v = 0; v < _vcs; ++v){
+        outputQs[m][n][v] = FlitQ();
+      }
+    }
+  }
+  for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
+    currSrcToManager[i] = make_pair(FLATFLY_INDEX,0);
   }
 }
 
@@ -102,23 +106,15 @@ Flit *DragonTree::ReadFlit( int dest )
 {
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
 
-  FlitQ outputQ = outputQMap[dest];
-  
-  Flit *fat_tree_eject = fat_tree_ptr->ReadFlit(dest);
-  if (fat_tree_eject != 0) {
-    outputQ.push(fat_tree_eject);
-  } 
-  Flit *flat_fly_eject = flat_fly_ptr->ReadFlit(dest);
-  if (flat_fly_eject != 0){
-   outputQ.push(flat_fly_eject);
+  Flit * f = flat_fly_ptr->ReadFlit(dest);
+  if (f){
+    outputQs[dest][FLATFLY_INDEX][f->vc].push(f);
   }
-  Flit *toReturn;
-  if (!outputQ.empty()){
-    toReturn = outputQ.front();
-    outputQ.pop();
-  } else {
-    toReturn = 0;
+  f = fat_tree_ptr->ReadFlit(dest);
+  if (f){
+    outputQs[dest][FATTREE_INDEX][f->vc].push(f);
   }
+
   return toReturn;
 
 
