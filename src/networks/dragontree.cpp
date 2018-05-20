@@ -60,10 +60,13 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
     currSrcToManager[i] = make_pair(FLATFLY_INDEX,0);
   }
+
+  flat_fly_lat = 0;
+  fat_tree_lat = 0;
 }
 
 void DragonTree::RegisterRoutingFunctions() {
-  
+  gRoutingFunctionMap["dragontree_routing"] = &dragontree_routing;
 }
 
 void DragonTree::_BuildNet( const Configuration &config ) {
@@ -79,21 +82,29 @@ void DragonTree::WriteFlit( Flit *f, int source )
   // TODO: Need to check which network we wrote in to grant credit back in
   //       using function read credit.
   assert( ( source >= 0 ) && ( source < _nodes ) );
+  bool ffly_network = false;
   if(f->head){
-    if (true){ //replace condition with some routing logic
+    // odd source -> fat tree, even source -> ffly
+    switch (_inject_route) {
+      case DETERMINISTIC: ffly_network = (source % 2) == 0; break;
+      case OBLIVIOUS: ffly_network = rand() % 2; break;
+      case ADAPTIVE: ffly_network = adaptive_inject_routing(f, source); break;
+    }
+
+    if (ffly_network){
       packetMap[f->pid] = true;
       flat_fly_ptr->WriteFlit(f,source);
       SourceToNetworkMap[source].push(true);
-    } else {
+    } else { // fattree
       packetMap[f->pid] = false;
       fat_tree_ptr->WriteFlit(f,source);
       SourceToNetworkMap[source].push(false);
     }
   } else { //not head flit
-    if(packet_map.find(f->pid)->second){
+    if(packet_map.find(f->pid)->second){ // flat fly
       flat_fly_ptr->WriteFlit(f,source);
       SourceToNetworkMap[source].push(true);
-    } else {
+    } else { // fat tree
       fat_tree_ptr->WriteFlit(f,source);
       SourceToNetworkMap[source].push(false);
     }
@@ -116,6 +127,7 @@ Flit *DragonTree::ReadFlit( int dest )
   }
 
   return toReturn;
+}
 
 
 void DragonTree::WriteCredit( Credit *c, int dest )
@@ -150,6 +162,30 @@ Credit *DragonTree::ReadCredit( int source )
 
   // fat tree case
   return fat_tree_ptr->_inject_cred[source]->Receive();
+}
+
+void update_latency_prediction(bool ntwk, Flit *f) {
+  switch (ntwk) {
+    case FLATFLY_INDEX: flat_fly_lat = f->atime - f->ctime;
+    case FATTREE_INDEX: flat_fly_lat = f->atime - f->ctime;
+  }
+}
+
+// returns: false - fat tree, true - flat fly
+bool adaptive_inject_routing(Flit *f, int source) {
+  // Do some routing logic to find out which subnetwork should best take this
+  // flit from the specified source.
+
+  if (flat_fly_lat < fat_tree_lat)
+    return FLATFLY_INDEX;
+
+  return FATTREE_INDEX;
+}
+
+// To bypass traffic manager routing function
+void dragontree_routing( const Router *r, const Flit *f, int in_channel, 
+      OutputSet *outputs, bool inject ) {
+  ugal_xyyx_flatfly_onchip(r, f, in_channel, outputs, inject);
 }
 
 
