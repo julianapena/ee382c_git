@@ -62,6 +62,7 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
       }
     }
   }
+
   for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
     currSrcToManager[i].subnet = FLATFLY_INDEX;
     currSrcToManager[i].vc = 0;
