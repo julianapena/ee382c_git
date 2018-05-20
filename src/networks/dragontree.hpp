@@ -45,9 +45,6 @@ struct NetAndVC{
 
 typedef std::map<int, int> PacketToSubnetworkMap;
 typedef std::queue<Flit *> FlitQ;
-typedef std::map<int, std::queue<bool> > SourceToNetworkMap;
-typedef std::map<int, std::queue<bool> > DestToNetworkMap;
-typedef std::map<int, FlitQ> DestToQMap;
 typedef std::vector<FlitQ> VCToQ;
 typedef std::vector<VCToQ> SubToVCQ;
 typedef std::vector<SubToVCQ> NodeToSubToVCQ;
@@ -66,9 +63,7 @@ class DragonTree : public Network {
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
   LastOutputSource lastSubnetOut;
-  std::vector<bool> lastWasTail;
   NodeToNetwork sourceToNetwork;
-  NodeToNetwork destToNetwork;
 
   // keep track of latency foor adaptive routing.
   int flat_fly_lat;
