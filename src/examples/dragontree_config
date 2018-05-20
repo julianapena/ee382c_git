@@ -17,7 +17,12 @@ xr = 2;
 yr = 2;
 ////////////////////////////////////////////////////////////////////////////////
 
+// Routing into subnetworks
+// Deterministic - 0, Oblivious - 1, Adaptive - 2
+inject_route = 0
 
 // for injection mode
 packet_size = 1;
 injection_rate = 0.1;
+
+num_vcs

@@ -57,7 +57,7 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
       }
     }
   }
-  for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
+  for (int i = 0; i < _nodes; ++i){ // Init current output network and VC per source
     currSrcToManager[i] = make_pair(FLATFLY_INDEX,0);
   }
 
