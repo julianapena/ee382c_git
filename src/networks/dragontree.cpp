@@ -97,19 +97,19 @@ void DragonTree::WriteFlit( Flit *f, int source )
     if (ffly_network){
       packetMap[f->pid] = true;
       flat_fly_ptr->WriteFlit(f,source);
-      SourceToNetworkMap[source].push(true);
+      sourceToNetwork[source].push(true);
     } else { // fattree
       packetMap[f->pid] = false;
       fat_tree_ptr->WriteFlit(f,source);
-      SourceToNetworkMap[source].push(false);
+      sourceToNetwork[source].push(false);
     }
   } else { //not head flit
     if(packet_map.find(f->pid)->second){ // flat fly
       flat_fly_ptr->WriteFlit(f,source);
-      SourceToNetworkMap[source].push(true);
+      sourceToNetwork[source].push(true);
     } else { // fat tree
       fat_tree_ptr->WriteFlit(f,source);
-      SourceToNetworkMap[source].push(false);
+      sourceToNetwork[source].push(false);
     }
   }
 }
@@ -171,8 +171,8 @@ void DragonTree::WriteCredit( Credit *c, int dest )
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
 
   // pop from queue - last read network
-  bool flitLastRead = DestToNetworkMap[source].front();
-  DestToNetworkMap[source].pop();
+  bool flitLastRead = destToNetwork[source].front();
+  destToNetwork[source].pop();
 
   if (flitLastRead == true) {
     // flat fly case.

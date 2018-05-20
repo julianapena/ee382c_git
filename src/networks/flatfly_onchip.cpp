@@ -76,9 +76,9 @@ FlatFlyOnChip::FlatFlyOnChip( const Configuration &config, const string & name )
 
 void FlatFlyOnChip::_ComputeSize( const Configuration &config )
 {
-  _k = config.GetInt( "k" );	// # of routers per dimension
-  _n = config.GetInt( "n" );	// dimension
-  _c = config.GetInt( "c" );    //concentration, may be different from k
+  _k = config.GetInt( "fb_k" );	// # of routers per dimension
+  _n = config.GetInt( "fb_n" );	// dimension
+  _c = config.GetInt( "fb_c" );    //concentration, may be different from k
   _r = _c + (_k-1)*_n ;		// total radix of the switch  ( # of inputs/outputs)
 
   //how many routers in the x or y direction
