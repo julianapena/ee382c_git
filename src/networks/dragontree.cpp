@@ -100,6 +100,21 @@ void DragonTree::WriteFlit( Flit *f, int source )
   }
 }
 
+NetAndVC nextNetAndVC(NetAndVC currNetAndVC)
+{
+  if(currNetAndVC.subnet == FLATFLY_INDEX){
+    ++currNetAndVC.subnet;
+    return currNetAndVC;
+  } else {
+    currNetAndVC.subnet = FLATFLY_INDEX;
+    ++currNetAndVC.vc;
+    if (currNetAndVC.vc == _vcs){
+      currNetAndVC.vc = 0;
+    }
+    return currNetAndVC;
+  }
+}
+
 // Returns output flit if available.
 // Traffic manager tracks which packages have been accepted.
 Flit *DragonTree::ReadFlit( int dest )
@@ -114,9 +129,27 @@ Flit *DragonTree::ReadFlit( int dest )
   if (f){
     outputQs[dest][FATTREE_INDEX][f->vc].push(f);
   }
-
+  Flit * toReturn;
+  NetAndVC original = currSrcToManager[dest];
+  NetAndVC outSrc = original; 
+  while (outputQs[dest][outSrc.subnet][outSrc.vc].empty()){
+    outSrc = nextNetAndVC(outSrc);
+    if (outSrc.subnet == original.subnet && outSrc.vc == original.vc) break;
+  }
+  currSrcToManager[dest] = outSrc;
+  if (!outputQs[dest][outSrc.subnet][outSrc.vc].empty()){
+    toReturn = outputQs[dest][outSrc.subnet][outSrc.vc].front();
+    outputQs[dest][outSrc.subnet][outSrc.vc].pop();
+  } else {
+    toReturn = 0;
+  }
+  if (toReturn){
+    if (toReturn->tail){
+      currSrcToManager[dest] = nextNetAndVC(outSrc);
+    }
+  }
   return toReturn;
-
+}
 
 void DragonTree::WriteCredit( Credit *c, int dest )
 {
