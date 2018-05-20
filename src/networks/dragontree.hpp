@@ -48,6 +48,9 @@ typedef std::queue<Flit *> FlitQ;
 typedef std::vector<FlitQ> VCToQ;
 typedef std::vector<VCToQ> SubToVCQ;
 typedef std::vector<SubToVCQ> NodeToSubToVCQ;
+typedef std::queue<Credit *> CreditQ;
+typedef std::vector<CreditQ> SubToCQ;
+typedef std::vector<SubToCQ> NodeToSubToCQ;
 typedef std::vector<NetAndVC> CurrentOutputSource;
 typedef std::vector<int> LastOutputSource;
 typedef std::vector<int> NodeToNetwork;
@@ -65,6 +68,7 @@ class DragonTree : public Network {
 
   PacketToSubnetworkMap packetMap;
   NodeToSubToVCQ outputQs;
+  NodeToSubToCQ creditQs;
   CurrentOutputSource currSrcToManager;
   LastOutputSource lastSubnetOut;
   NodeToNetwork sourceToNetwork;
@@ -83,6 +87,7 @@ class DragonTree : public Network {
 
 public:
   DragonTree( const Configuration &config, const string & name );
+  ~DragonTree();
 
   void WriteFlit( Flit *f, int source );
   Flit *ReadFlit( int dest );
