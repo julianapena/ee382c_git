@@ -45,9 +45,8 @@ struct NetAndVC{
 
 typedef std::map<int, bool> PacketToSubnetworkMap;
 typedef std::queue<Flit *> FlitQ;
-typedef std::map<int, FlitQ> DestToQMap;
-typedef std::map<int, std::queue<bool>> SourceToNetworkMap;
-typedef std::map<int, std::queue<bool>> DestToNetworkMap;
+typedef std::map<int, std::queue<bool> > SourceToNetworkMap;
+typedef std::map<int, std::queue<bool> > DestToNetworkMap;
 typedef std::vector<FlitQ> VCToQ;
 typedef std::vector<VCToQ> SubToVCQ;
 typedef std::vector<SubToVCQ> NodeToSubToVCQ;
@@ -58,10 +57,8 @@ class DragonTree : public Network {
   Network *flat_fly_ptr;
   Network *fat_tree_ptr;
   PacketToSubnetworkMap packetMap;
-  DestToQMap outputQMap;
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
-  std::vector<bool> lastWasTail;
 
   void _ComputeSize( const Configuration &config );
   void _BuildNet( const Configuration &config );
