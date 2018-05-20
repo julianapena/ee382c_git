@@ -38,7 +38,7 @@
 
 #define FLATFLY_INDEX   0
 #define FATTREE_INDEX   1
-#define NUM_SUBNETWORS  2
+#define NUM_SUBNETWORKS 2
 #define DETERMINISTIC   0
 #define OBLIVIOUS       1
 #define ADAPTIVE        2
@@ -53,28 +53,34 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
 
-  std::cout << "nodes are " << _nodes << std::endl;
-  outputQs.resize(_nodes);
-  currSrcToManager.resize(_nodes);
-  lastSubnetOut.resize(_nodes);
-  sourceToNetwork.resize(_nodes);
 
   _ComputeSize(config);
 
+  std::cout << "nodes are " << _nodes << std::endl;
+  std::cout << "vcs are " << num_vcs << std::endl;
+
+  outputQs.resize(_nodes);
   for (int m = 0; m < _nodes; ++m){ //init output queues
     outputQs[m] = SubToVCQ();
-    for (int n = 0; n < 2; ++n){
+    outputQs[m].resize(NUM_SUBNETWORKS);
+    for (int n = 0; n < NUM_SUBNETWORKS; ++n){
       outputQs[m][n] = VCToQ();
+      outputQs[m][n].resize(num_vcs);
       for (int v = 0; v < num_vcs; ++v){
         outputQs[m][n][v] = FlitQ();
       }
     }
   }
 
+  std::cout << "poop" << std::endl;
+  currSrcToManager.resize(_nodes);
   for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
     currSrcToManager[i].subnet = FLATFLY_INDEX;
     currSrcToManager[i].vc = 0;
   }
+
+  lastSubnetOut.resize(_nodes);
+  sourceToNetwork.resize(_nodes);
 
   flat_fly_lat = 0;
   fat_tree_lat = 0;
