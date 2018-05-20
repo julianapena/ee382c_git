@@ -39,6 +39,11 @@
 typedef std::map<int, bool> PacketToSubnetworkMap;
 typedef std::queue<Flit *> FlitQ;
 typedef std::map<int, FlitQ> DestToQMap;
+typedef std::vector<FlitQ> VCToQ;
+typedef std::vector<VCToQ> SubToVCQ;
+typedef std::vector<SubToVCQ> NodeToSubToVCQ;
+typedef std::pair<int,int> NetAndVC;
+typedef std::vector<NetAndVC> CurrentOutputSource;
 
 class DragonTree : public Network {
  
@@ -46,6 +51,8 @@ class DragonTree : public Network {
   Network *fat_tree_ptr;
   PacketToSubnetworkMap packetMap;
   DestToQMap outputQMap;
+  NodeToSubToVCQ outputQs;
+  CurrentOutputSource currSrcToManager;
 
   void _ComputeSize( const Configuration &config );
   void _BuildNet( const Configuration &config );

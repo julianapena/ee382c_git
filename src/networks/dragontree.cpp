@@ -36,6 +36,10 @@
 #include "misc_utils.hpp"
 #include "globals.hpp"
 
+#define FLATFLY_INDEX   0
+#define FATTREE_INDEX   1
+#define NUM_SUBNETWORS  2
+
 DragonTree::DragonTree( const Configuration &config, const string & name ) : Network( config, name )
 {
   //make a config file for flat_fly
@@ -53,8 +57,17 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
 
-  for (int m; m < _nodes; ++m){
-    outputQMap[m] = FlitQ();
+  for (int m = 0; m < _nodes; ++m){ //init output queues
+    outputQs[m] = SubToVCQ();
+    for (int n = 0; n < 2; ++n){
+      outputQs[m][n] = VCToQ();
+      for (int v = 0; v < _vcs; ++v){
+        outputQs[m][n][v] = FlitQ();
+      }
+    }
+  }
+  for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
+    currSrcToManager[i] = make_pair(FLATFLY_INDEX,0);
   }
 }
 
@@ -94,19 +107,15 @@ Flit *DragonTree::ReadFlit( int dest )
 {
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
 
-  FlitQ outputQ = outputQMap[dest];
-  
-  Flit *fat_tree_eject = fat_tree_ptr->ReadFlit(dest);
-  if (fat_tree_eject != 0) outputQ.push(fat_tree_eject);
-  Flit *flat_fly_eject = flat_fly_ptr->ReadFlit(dest);
-  if (flat_fly_eject != 0) outputQ.push(flat_fly_eject);
-  Flit *toReturn;
-  if (!outputQ.empty()){
-    toReturn = outputQ.front();
-    outputQ.pop();
-  } else {
-    toReturn = 0;
+  Flit * f = flat_fly_ptr->ReadFlit(dest);
+  if (f){
+    outputQs[dest][FLATFLY_INDEX][f->vc].push(f);
   }
+  f = fat_tree_ptr->ReadFlit(dest);
+  if (f){
+    outputQs[dest][FATTREE_INDEX][f->vc].push(f);
+  }
+
   return toReturn;
 }
 
@@ -120,7 +129,12 @@ void DragonTree::WriteCredit( Credit *c, int dest )
 Credit *DragonTree::ReadCredit( int source )
 {
   assert( ( source >= 0 ) && ( source < _nodes ) );
-  //return _inject_cred[source]->Receive();
+
+  if (flit_read_from_flatfly){
+    flat_fly_ptr->ReadCredit(source);
+  } else {
+    fat_tree_ptr->ReadCredit(source);
+  }
 }
 
 
