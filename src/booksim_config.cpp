@@ -37,6 +37,15 @@
 
 BookSimConfig::BookSimConfig( )
 { 
+
+  // PA2 STUFF
+  _int_map["ft_k"] = 4;
+  _int_map["ft_n"] = 3;
+  _int_map["fb_k"] = 4;
+  _int_map["fb_n"] = 3;
+  _int_map["fb_c"] = 4;
+  _int_map["inject_route"] = 0;
+
   //========================================================
   // Network options
   //========================================================

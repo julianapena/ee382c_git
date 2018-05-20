@@ -1,28 +1,36 @@
 
 /////////////////////////// Fat Tree stuff ///////////////////////////
-ft_c  = 4;
+// ft_c  = 4;
 ft_k  = 4;
-ft_n  = 2;
+ft_n  = 3;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////// Flattened Butterfly stuff //////////////////////////
 fb_c  = 4;
 fb_k  = 4;
-fb_n  = 2;
+fb_n  = 3;
 
-x  = 4;
-y  = 4;
-xr = 2;
-yr = 2;
+// x  = 4;
+// y  = 4;
+// xr = 2;
+// yr = 2;
 ////////////////////////////////////////////////////////////////////////////////
 
 // Routing into subnetworks
 // Deterministic - 0, Oblivious - 1, Adaptive - 2
-inject_route = 0
+// inject_route = 0;
 
-// for injection mode
-packet_size = 1;
 injection_rate = 0.1;
 
-num_vcs
+routing_function = dragontree_routing;
+
+
+// Q3
+inject_route = 0;
+channel_width = 128;
+traffic = uniform;
+packet_size = 4;
+injection_rate = 0.1; // have to play with this
+
+// num_vcs = 2;

@@ -224,7 +224,7 @@ bool DragonTree::adaptive_inject_routing(Flit *f, int source) {
 // To bypass traffic manager routing function
 void dragontree_routing( const Router *r, const Flit *f, int in_channel, 
       OutputSet *outputs, bool inject ) {
-  ugal_xyyx_flatfly_onchip(r, f, in_channel, outputs, inject);
+  xyyx_flatfly(r, f, in_channel, outputs, inject);
 }
 
 

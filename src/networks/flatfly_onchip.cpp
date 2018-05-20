@@ -447,9 +447,10 @@ void xyyx_flatfly( const Router *r, const Flit *f, int in_channel,
       assert(available_vcs > 0);
 
       // randomly select dimension order at first hop
-      bool x_then_y = ((in_channel < gC) ?
-		       (RandomInt(1) > 0) : 
-		       (f->vc < (vcBegin + available_vcs)));
+      // bool x_then_y = ((in_channel < gC) ?
+		    //    (RandomInt(1) > 0) : 
+		    //    (f->vc < (vcBegin + available_vcs)));
+      bool x_then_y = true;
 
       if(x_then_y) {
 	out_port = flatfly_outport(dest, r->GetID());
