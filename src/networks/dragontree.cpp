@@ -48,6 +48,8 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
 
+  _vcs = config.GetInt("num_vcs");
+
   for (int m = 0; m < _nodes; ++m){ //init output queues
     outputQs[m] = SubToVCQ();
     for (int n = 0; n < 2; ++n){
@@ -58,7 +60,8 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
     }
   }
   for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
-    currSrcToManager[i] = make_pair(FLATFLY_INDEX,0);
+    currSrcToManager[i].subnet = FLATFLY_INDEX;
+    currSrcToManager[i].vc = 0;
   }
 
   flat_fly_lat = 0;
@@ -154,6 +157,7 @@ Flit *DragonTree::ReadFlit( int dest )
   } else {
     toReturn = 0;
   }
+  lastSubnetOut[dest] = outSrc.subnet;
   if (toReturn){
     if (toReturn->tail){
       currSrcToManager[dest] = nextNetAndVC(outSrc);
@@ -183,17 +187,13 @@ Credit *DragonTree::ReadCredit( int source )
 {
   assert( ( source >= 0 ) && ( source < _nodes ) );
 
-  // pop from queue - last written network
-  bool flitLastWritten = SourceToNetworkMap[source].front();
-  SourceToNetworkMap[source].pop();
-
-  if (flitLastWritten == true) {
+  if (lastSubnetOut[source] == FLATFLY_INDEX) {
     // flat fly case.
-    return flat_fly_ptr->_inject_cred[source]->Receive();
-  } 
-
-  // fat tree case
-  return fat_tree_ptr->_inject_cred[source]->Receive();
+    return flat_fly_ptr->ReadCredit(source);
+  } else {
+    // fat tree case
+    return fat_tree_ptr->ReadCredit(source);    
+  }
 }
 
 void update_latency_prediction(bool ntwk, Flit *f) {

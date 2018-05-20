@@ -51,14 +51,18 @@ typedef std::vector<FlitQ> VCToQ;
 typedef std::vector<VCToQ> SubToVCQ;
 typedef std::vector<SubToVCQ> NodeToSubToVCQ;
 typedef std::vector<NetAndVC> CurrentOutputSource;
+typedef std::vector<int> LastOutputSource;
 
 class DragonTree : public Network {
+
+  int _vcs;
  
   Network *flat_fly_ptr;
   Network *fat_tree_ptr;
   PacketToSubnetworkMap packetMap;
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
+  LastOutputSource lastSubnetOut;
 
   // keep track of latency foor adaptive routing.
   int flat_fly_lat;
