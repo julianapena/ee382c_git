@@ -68,6 +68,11 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
     currSrcToManager[i].vc = 0;
   }
 
+  outputQs.resize(_nodes);
+  currSrcToManager.resize(_nodes);
+  lastSubnetOut.resize(_nodes);
+  sourceToNetwork.resize(_nodes);
+
   flat_fly_lat = 0;
   fat_tree_lat = 0;
 }
@@ -76,7 +81,7 @@ void DragonTree::RegisterRoutingFunctions() {
   gRoutingFunctionMap["dragontree_routing"] = &dragontree_routing;
 }
 
-void DragonTree::_BuildNet( const Configuration &config ) {
+void DragonTree::_BuildNet( const Configuration &caonfig ) {
 
 }
 
