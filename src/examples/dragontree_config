@@ -25,7 +25,7 @@ injection_rate = 0.1;
 
 topology = dragontree;
 // routing_function = xyyx_flatfly;
-routing_function = xyyx;
+routing_function = deterministic;
 
 
 // Q3

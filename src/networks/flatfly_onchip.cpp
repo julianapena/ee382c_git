@@ -58,7 +58,7 @@
 
 
 
-//#define DEBUG_FLATFLY
+//#define DEBUG_FLATFLY 1
 
 static int _xcount;
 static int _ycount;
@@ -68,6 +68,8 @@ static int _yrouter;
 FlatFlyOnChip::FlatFlyOnChip( const Configuration &config, const string & name ) :
   Network( config, name )
 {
+
+  RegisterRoutingFunctions();
 
   _ComputeSize( config );
   _Alloc( );

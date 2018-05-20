@@ -54,11 +54,15 @@ typedef std::vector<int> NodeToNetwork;
 
 class DragonTree : public Network {
 
-  int num_vcs;
-  int _inject_route;
+  Configuration flat_fly_config;
+  Configuration fat_tree_config;
  
   FlatFlyOnChip *flat_fly_ptr;
   FatTree *fat_tree_ptr;
+
+  int num_vcs;
+  int _inject_route;
+
   PacketToSubnetworkMap packetMap;
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
@@ -71,6 +75,7 @@ class DragonTree : public Network {
 
   NetAndVC nextNetAndVC(NetAndVC currNetAndVC);
 
+  void copy_config(const Configuration &srcConfig, Configuration &destConfig);
   void _ComputeSize( const Configuration &config );
   void _BuildNet( const Configuration &config );
   bool adaptive_inject_routing(Flit *f, int source);  
@@ -93,7 +98,7 @@ public:
 };
 
 
-void xyyx_dragontree( const Router *r, const Flit *f, int in_channel, 
+void deterministic_dragontree( const Router *r, const Flit *f, int in_channel, 
       OutputSet *outputs, bool inject );
 
 #endif 

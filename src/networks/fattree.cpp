@@ -53,7 +53,7 @@
 #include "misc_utils.hpp"
 
 
- //#define FATTREE_DEBUG
+//#define FATTREE_DEBUG 1
 
 FatTree::FatTree( const Configuration& config,const string & name )
   : Network( config ,name)
@@ -69,8 +69,8 @@ FatTree::FatTree( const Configuration& config,const string & name )
 void FatTree::_ComputeSize( const Configuration& config )
 {
 
-  _k = config.GetInt( "ft_k" );
-  _n = config.GetInt( "ft_n" );
+  _k = config.GetInt( "k" );
+  _n = config.GetInt( "n" );
    
   gK = _k; gN = _n;
   

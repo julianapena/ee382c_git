@@ -49,11 +49,28 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   // Fields which are relevant to only FlatFLy or FatTree are prefixed
   // as such in the config file. E.g. 
 
-  std::cout << "HELLO OOOOOOO\n";
-  flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
-  fat_tree_ptr = new FatTree(config, "fattree");
+  RegisterRoutingFunctions();
+
+  copy_config(config, flat_fly_config);
+  flat_fly_config.Assign("routing_function","xyyx");
+  flat_fly_config.Assign("topology","flatfly");
+
+  copy_config(config,fat_tree_config);
+  fat_tree_config.Assign("routing_function","nca");
+  fat_tree_config.Assign("topology","fattree");
 
 
+  std::cout << flat_fly_config.GetStr("routing_function") << std::endl;
+  std::cout << fat_tree_config.GetStr("routing_function") << std::endl;
+
+  flat_fly_ptr = new FlatFlyOnChip(flat_fly_config, "flatfly");
+  fat_tree_ptr = new FatTree(fat_tree_config, "fattree");
+
+  _size = 0;
+  _channels = 0;
+  _classes = 0;
+  flat_fly_lat = 0;
+  fat_tree_lat = 0;
   _ComputeSize(config);
 
   std::cout << "nodes are " << _nodes << std::endl;
@@ -72,7 +89,6 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
     }
   }
 
-  std::cout << "poop" << std::endl;
   currSrcToManager.resize(_nodes);
   for (int i = 0; i < _nodes; ++i){ //Init current output network and VC per source
     currSrcToManager[i].subnet = FLATFLY_INDEX;
@@ -82,12 +98,13 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   lastSubnetOut.resize(_nodes);
   sourceToNetwork.resize(_nodes);
 
-  flat_fly_lat = 0;
-  fat_tree_lat = 0;
 }
 
-void DragonTree::RegisterRoutingFunctions() {
-  gRoutingFunctionMap["xyyx_dragontree"] = &xyyx_dragontree;
+void DragonTree::copy_config(const Configuration &srcConfig, Configuration &destConfig)
+{
+  destConfig.copyStrMap(srcConfig.GetStrMap());
+  destConfig.copyIntMap(srcConfig.GetIntMap());
+  destConfig.copyFloatMap(srcConfig.GetFloatMap());
 }
 
 void DragonTree::_BuildNet( const Configuration &caonfig ) {
@@ -104,10 +121,10 @@ void DragonTree::_ComputeSize( const Configuration &config ) {
 
 void DragonTree::WriteFlit( Flit *f, int source )
 {
-  // TODO: Need to check which network we wrote in to grant credit back in
-  //       using function read credit.
+  // TODO: write null pointer to other subnetwork
   assert( ( source >= 0 ) && ( source < _nodes ) );
   bool ffly_network = false;
+  Flit * nullPtr = 0;
   if(f->head){
     // odd source -> fat tree, even source -> ffly
     switch (_inject_route) {
@@ -120,18 +137,22 @@ void DragonTree::WriteFlit( Flit *f, int source )
       packetMap[f->pid] = FLATFLY_INDEX;
       flat_fly_ptr->WriteFlit(f,source);
       sourceToNetwork[source] = FLATFLY_INDEX;
+      fat_tree_ptr->WriteFlit(nullPtr,source);
     } else { // fattree
       packetMap[f->pid] = FATTREE_INDEX;
       fat_tree_ptr->WriteFlit(f,source);
       sourceToNetwork[source] = FATTREE_INDEX;
+      flat_fly_ptr->WriteFlit(nullPtr,source);
     }
   } else { //not head flit
     if(packetMap[f->pid] == FLATFLY_INDEX){ // flat fly
       flat_fly_ptr->WriteFlit(f,source);
       sourceToNetwork[source] = FLATFLY_INDEX;
+      fat_tree_ptr->WriteFlit(nullPtr,source);
     } else { // fat tree
       fat_tree_ptr->WriteFlit(f,source);
       sourceToNetwork[source] = FATTREE_INDEX;
+      flat_fly_ptr->WriteFlit(nullPtr,source);
     }
   }
 }
@@ -251,8 +272,12 @@ bool DragonTree::adaptive_inject_routing(Flit *f, int source) {
   return FATTREE_INDEX;
 }
 
+void DragonTree::RegisterRoutingFunctions() {
+  gRoutingFunctionMap["deterministic_dragontree"] = &deterministic_dragontree;
+}
+
 // To bypass traffic manager routing function
-void xyyx_dragontree( const Router *r, const Flit *f, int in_channel, 
+void deterministic_dragontree( const Router *r, const Flit *f, int in_channel, 
       OutputSet *outputs, bool inject ) {
   xyyx_flatfly(r, f, in_channel, outputs, inject);
 }

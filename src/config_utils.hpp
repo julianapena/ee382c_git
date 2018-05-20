@@ -72,6 +72,18 @@ public:
   void WriteFile(string const & filename);
   void WriteMatlabFile(ostream * o) const;
 
+  inline void copyStrMap(const map<string, string> & srcMap) {
+    _str_map = srcMap;
+  }
+
+  inline void copyIntMap(const map<string,int> & srcMap) {
+    _int_map = srcMap;
+  }
+
+  inline void copyFloatMap(const map<string,double> & srcMap) {
+    _float_map = srcMap;
+  }
+
   inline const map<string, string> & GetStrMap() const {
     return _str_map;
   }
