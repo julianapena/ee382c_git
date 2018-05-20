@@ -39,6 +39,9 @@
 #define FLATFLY_INDEX   0
 #define FATTREE_INDEX   1
 #define NUM_SUBNETWORS  2
+#define DETERMINISTIC   0
+#define OBLIVIOUS       1
+#define ADAPTIVE        2
 
 DragonTree::DragonTree( const Configuration &config, const string & name ) : Network( config, name )
 {
@@ -48,13 +51,13 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   flat_fly_ptr = new FlatFlyOnChip(config, "flatfly");
   fat_tree_ptr = new FatTree(config, "fattree");
 
-  _vcs = config.GetInt("num_vcs");
+  _ComputeSize(config);
 
   for (int m = 0; m < _nodes; ++m){ //init output queues
     outputQs[m] = SubToVCQ();
     for (int n = 0; n < 2; ++n){
       outputQs[m][n] = VCToQ();
-      for (int v = 0; v < _vcs; ++v){
+      for (int v = 0; v < num_vcs; ++v){
         outputQs[m][n][v] = FlitQ();
       }
     }
@@ -77,7 +80,8 @@ void DragonTree::_BuildNet( const Configuration &config ) {
 }
 
 void DragonTree::_ComputeSize( const Configuration &config ) {
-
+  num_vcs = config.GetInt("num_vcs");
+  _inject_route =  config.GetInt("inject_route"); 
 }
 
 void DragonTree::WriteFlit( Flit *f, int source )
@@ -95,26 +99,26 @@ void DragonTree::WriteFlit( Flit *f, int source )
     }
 
     if (ffly_network){
-      packetMap[f->pid] = true;
+      packetMap[f->pid] = FLATFLY_INDEX;
       flat_fly_ptr->WriteFlit(f,source);
-      sourceToNetwork[source].push(true);
+      sourceToNetwork[source] = FLATFLY_INDEX;
     } else { // fattree
-      packetMap[f->pid] = false;
+      packetMap[f->pid] = FATTREE_INDEX;
       fat_tree_ptr->WriteFlit(f,source);
-      sourceToNetwork[source].push(false);
+      sourceToNetwork[source] = FATTREE_INDEX;
     }
   } else { //not head flit
-    if(packet_map.find(f->pid)->second){ // flat fly
+    if(packetMap[f->pid] == FLATFLY_INDEX){ // flat fly
       flat_fly_ptr->WriteFlit(f,source);
-      sourceToNetwork[source].push(true);
+      sourceToNetwork[source] = FLATFLY_INDEX;
     } else { // fat tree
       fat_tree_ptr->WriteFlit(f,source);
-      sourceToNetwork[source].push(false);
+      sourceToNetwork[source] = FATTREE_INDEX;
     }
   }
 }
 
-NetAndVC nextNetAndVC(NetAndVC currNetAndVC)
+NetAndVC DragonTree::nextNetAndVC(NetAndVC currNetAndVC)
 {
   if(currNetAndVC.subnet == FLATFLY_INDEX){
     ++currNetAndVC.subnet;
@@ -122,7 +126,7 @@ NetAndVC nextNetAndVC(NetAndVC currNetAndVC)
   } else {
     currNetAndVC.subnet = FLATFLY_INDEX;
     ++currNetAndVC.vc;
-    if (currNetAndVC.vc == _vcs){
+    if (currNetAndVC.vc == num_vcs){
       currNetAndVC.vc = 0;
     }
     return currNetAndVC;
@@ -170,16 +174,12 @@ void DragonTree::WriteCredit( Credit *c, int dest )
 {
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
 
-  // pop from queue - last read network
-  bool flitLastRead = destToNetwork[source].front();
-  destToNetwork[source].pop();
-
-  if (flitLastRead == true) {
+  if (sourceToNetwork[dest] == FLATFLY_INDEX) {
     // flat fly case.
-    flat_fly_ptr->_eject_cred[dest]->Send(c);
+    flat_fly_ptr->WriteCredit(c, dest);
   } else {
     // fat tree case.
-    fat_tree_ptr->_eject_cred[dest]->Send(c);
+    fat_tree_ptr->WriteCredit(c, dest);
   }
 }
 
@@ -196,15 +196,16 @@ Credit *DragonTree::ReadCredit( int source )
   }
 }
 
-void update_latency_prediction(bool ntwk, Flit *f) {
-  switch (ntwk) {
-    case FLATFLY_INDEX: flat_fly_lat = f->atime - f->ctime;
-    case FATTREE_INDEX: flat_fly_lat = f->atime - f->ctime;
+void DragonTree::update_latency_prediction(bool ntwk, Flit *f) {
+  if (ntwk == FLATFLY_INDEX) {
+    flat_fly_lat = f->atime - f->ctime;
+  } else {
+    flat_fly_lat = f->atime - f->ctime;
   }
 }
 
 // returns: false - fat tree, true - flat fly
-bool adaptive_inject_routing(Flit *f, int source) {
+bool DragonTree::adaptive_inject_routing(Flit *f, int source) {
   // Do some routing logic to find out which subnetwork should best take this
   // flit from the specified source.
 
