@@ -85,6 +85,10 @@ public:
   void    WriteCredit( Credit *c, int dest );
   Credit *ReadCredit( int source );
 
+  void ReadInputs( );
+  void Evaluate( );
+  void WriteOutputs( );
+
   static void RegisterRoutingFunctions();
 };
 

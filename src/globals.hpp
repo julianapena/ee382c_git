@@ -44,6 +44,10 @@ extern int gK;
 extern int gN;
 extern int gC;
 
+extern int gK_fly;
+extern int gN_fly;
+extern int gC_fly;
+
 extern int gNodes;
 
 extern bool gTrace;

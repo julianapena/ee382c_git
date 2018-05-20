@@ -87,7 +87,7 @@ void DragonTree::_BuildNet( const Configuration &caonfig ) {
 
 void DragonTree::_ComputeSize( const Configuration &config ) {
   num_vcs = config.GetInt("num_vcs");
-  _inject_route =  config.GetInt("inject_route"); 
+  _inject_route =  config.GetInt("inject_route");
 }
 
 void DragonTree::WriteFlit( Flit *f, int source )
@@ -200,6 +200,24 @@ Credit *DragonTree::ReadCredit( int source )
     // fat tree case
     return fat_tree_ptr->ReadCredit(source);    
   }
+}
+
+void DragonTree::ReadInputs()
+{
+  flat_fly_ptr->ReadInputs();
+  fat_tree_ptr->ReadInputs();
+}
+
+void DragonTree::Evaluate()
+{
+  flat_fly_ptr->Evaluate();
+  fat_tree_ptr->Evaluate();
+}
+
+void DragonTree::WriteOutputs()
+{
+  flat_fly_ptr->WriteOutputs();
+  fat_tree_ptr->WriteOutputs();
 }
 
 void DragonTree::update_latency_prediction(bool ntwk, Flit *f) {

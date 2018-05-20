@@ -83,6 +83,10 @@ int gK;//radix
 int gN;//dimension
 int gC;//concentration
 
+int gK_fly;
+int gN_fly;
+int gC_fly;
+
 int gNodes;
 
 //generate nocviewer trace
