@@ -43,33 +43,43 @@ struct NetAndVC{
   int vc;
 };
 
-typedef std::map<int, bool> PacketToSubnetworkMap;
+typedef std::map<int, int> PacketToSubnetworkMap;
 typedef std::queue<Flit *> FlitQ;
+typedef std::map<int, std::queue<bool> > SourceToNetworkMap;
+typedef std::map<int, std::queue<bool> > DestToNetworkMap;
 typedef std::map<int, FlitQ> DestToQMap;
-typedef std::map<int, std::queue<bool>> NodeToNetworkMap;
 typedef std::vector<FlitQ> VCToQ;
 typedef std::vector<VCToQ> SubToVCQ;
 typedef std::vector<SubToVCQ> NodeToSubToVCQ;
 typedef std::vector<NetAndVC> CurrentOutputSource;
+typedef std::vector<int> LastOutputSource;
+typedef std::vector<int> NodeToNetwork;
 
 class DragonTree : public Network {
+
+  int num_vcs;
+  int _inject_route;
  
   Network *flat_fly_ptr;
   Network *fat_tree_ptr;
   PacketToSubnetworkMap packetMap;
-  DestToQMap outputQMap;
   NodeToSubToVCQ outputQs;
   CurrentOutputSource currSrcToManager;
+  LastOutputSource lastSubnetOut;
   std::vector<bool> lastWasTail;
-  NodeToNetworkMap sourceToNetwork;
-  NodeToNetworkMap destToNetwork;
+  NodeToNetwork sourceToNetwork;
+  NodeToNetwork destToNetwork;
 
   // keep track of latency foor adaptive routing.
   int flat_fly_lat;
   int fat_tree_lat;
 
+  NetAndVC nextNetAndVC(NetAndVC currNetAndVC);
+
   void _ComputeSize( const Configuration &config );
   void _BuildNet( const Configuration &config );
+  bool adaptive_inject_routing(Flit *f, int source);  
+  void update_latency_prediction(bool ntwk, Flit *f);
 
 public:
   DragonTree( const Configuration &config, const string & name );
@@ -83,7 +93,6 @@ public:
   static void RegisterRoutingFunctions();
 };
 
-void adaptive_inject_routing(Flit *f, int source);
 
 void dragontree_routing( const Router *r, const Flit *f, int in_channel, 
       OutputSet *outputs, bool inject );
