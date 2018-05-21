@@ -43,6 +43,11 @@
 #define OBLIVIOUS       1
 #define ADAPTIVE        2
 
+DragonTree::~DragonTree()
+{
+  
+}
+
 DragonTree::DragonTree( const Configuration &config, const string & name ) : Network( config, name )
 {
   // Delegate config parsing task to subnetworks to avoid realloc. 
@@ -77,12 +82,16 @@ DragonTree::DragonTree( const Configuration &config, const string & name ) : Net
   std::cout << "vcs are " << num_vcs << std::endl;
 
   outputQs.resize(_nodes);
+  creditQs.resize(_nodes);
   for (int m = 0; m < _nodes; ++m){ //init output queues
     outputQs[m] = SubToVCQ();
     outputQs[m].resize(NUM_SUBNETWORKS);
+    creditQs[m] = SubToCQ();
+    creditQs[m].resize(NUM_SUBNETWORKS);
     for (int n = 0; n < NUM_SUBNETWORKS; ++n){
       outputQs[m][n] = VCToQ();
       outputQs[m][n].resize(num_vcs);
+      creditQs[m][n] = CreditQ();
       for (int v = 0; v < num_vcs; ++v){
         outputQs[m][n][v] = FlitQ();
       }
@@ -133,8 +142,8 @@ void DragonTree::WriteFlit( Flit *f, int source )
       case OBLIVIOUS: ffly_network = rand() % 2; break;
       case ADAPTIVE: ffly_network = adaptive_inject_routing(f, source); break;
     }
-    ffly_network = 1;
-    if (ffly_network){
+
+    if (true){
       packetMap[f->pid] = FLATFLY_INDEX;
       flat_fly_ptr->WriteFlit(f,source);
       sourceToNetwork[source] = FLATFLY_INDEX;
@@ -183,13 +192,14 @@ Flit *DragonTree::ReadFlit( int dest )
   assert( ( dest >= 0 ) && ( dest < _nodes ) );
 
   Flit * f = flat_fly_ptr->ReadFlit(dest);
-  if (f){
-    outputQs[dest][FLATFLY_INDEX][f->vc].push(f);
+  if (f) {
+    outputQs[dest][FLATFLY_INDEX][f->vc].push(f); 
   }
   f = fat_tree_ptr->ReadFlit(dest);
-  if (f){
+  if (f) {
     outputQs[dest][FATTREE_INDEX][f->vc].push(f);
   }
+
   Flit * toReturn;
   NetAndVC original = currSrcToManager[dest];
   NetAndVC outSrc = original; 
@@ -223,6 +233,7 @@ Flit *DragonTree::ReadFlit( int dest )
     }
   }
   return toReturn;
+  
 }
 
 void DragonTree::WriteCredit( Credit *c, int dest )
@@ -242,15 +253,26 @@ Credit *DragonTree::ReadCredit( int source )
 {
   assert( ( source >= 0 ) && ( source < _nodes ) );
 
-  if (lastSubnetOut[source] == FLATFLY_INDEX) {
-    // flat fly case.
-    cout << "Read credit flat\n";
-    return flat_fly_ptr->ReadCredit(source);
-  } else {
-    // fat tree case
-    cout << "Read credit ftree\n";
-    return fat_tree_ptr->ReadCredit(source);    
+  Credit *c = flat_fly_ptr->ReadCredit(source);
+  if (c){
+    creditQs[source][FLATFLY_INDEX].push(c);
   }
+  c = fat_tree_ptr->ReadCredit(source);
+  if (c){
+    creditQs[source][FATTREE_INDEX].push(c);
+  }
+
+  NetAndVC currSrc = currSrcToManager[source];
+
+  Credit *toReturn;
+  if(!creditQs[source][currSrc.subnet].empty()){
+    creditQs[source][currSrc.subnet].front();
+    creditQs[source][currSrc.subnet].pop();
+  } else {
+    toReturn = 0;
+  }
+
+  return toReturn;
 }
 
 void DragonTree::ReadInputs()
