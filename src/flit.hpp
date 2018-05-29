@@ -70,6 +70,8 @@ public:
   int  hops;
   bool watch;
   int  subnetwork;
+
+  bool valid;
   
   // intermediate destination (if any)
   mutable int intm;
@@ -88,6 +90,8 @@ public:
   static Flit * New();
   void Free();
   static void FreeAll();
+
+  void Invalidate();
 
 private:
 

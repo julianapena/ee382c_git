@@ -582,8 +582,9 @@ TrafficManager::TrafficManager( const Configuration &config, const vector<Networ
     _slowest_flit.resize(_classes, -1);
     _slowest_packet.resize(_classes, -1);
 
- 
-
+    //calculating BER
+    invalid_flits = 0; 
+    total_flits = 0;
 }
 
 TrafficManager::~TrafficManager( )
@@ -982,6 +983,11 @@ void TrafficManager::_Step( )
                     if(f->tail) {
                         ++_accepted_packets[f->cl][n];
                     }
+                } else {
+                    if (!f->valid) {
+                        ++invalid_flits;
+                    }
+                    ++total_flits;
                 }
             }
 
@@ -2076,7 +2082,6 @@ void TrafficManager::DisplayStats(ostream & os) const {
         rate_avg = rate_sum / (double)(_subnets*_routers);
         os << "Crossbar conflict stall rate = " << rate_avg << endl;
 #endif
-    
     }
 }
 
@@ -2168,7 +2173,9 @@ void TrafficManager::DisplayOverallStats( ostream & os ) const {
            << "Crossbar conflict stall rate = " << (double)_overall_crossbar_conflict_stalls[c] / (double)_total_sims
            << " (" << _total_sims << " samples)" << endl;
 #endif
-    
+        //Couting number of invalid flits
+        os << "Invalid flits: " << invalid_flits << endl;
+        os << "Total flits: " << total_flits << endl;
     }
   
 }

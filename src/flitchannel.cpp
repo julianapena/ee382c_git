@@ -49,6 +49,7 @@ FlitChannel::FlitChannel(Module * parent, string const & name, int classes)
 : Channel<Flit>(parent, name), _routerSource(NULL), _routerSourcePort(-1), 
   _routerSink(NULL), _routerSinkPort(-1), _idle(0) {
   _active.resize(classes, 0);
+  srand(time(0));
 }
 
 void FlitChannel::SetSource(Router const * const router, int port) {
@@ -83,6 +84,9 @@ void FlitChannel::ReadInputs() {
 
 void FlitChannel::WriteOutputs() {
   Channel<Flit>::WriteOutputs();
+  //For invalidating flit 
+  if (_output && (rand() % 3 == 0)) _output->Invalidate();
+
   if(_output && _output->watch) {
     *gWatchOut << GetSimTime() << " | " << FullName() << " | "
 	       << "Completed channel traversal for flit " << _output->id

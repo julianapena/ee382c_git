@@ -80,6 +80,7 @@ void Flit::Reset()
   intm =-1;
   ph = -1;
   data = 0;
+  valid = true;
 }  
 
 Flit * Flit::New() {
@@ -104,4 +105,9 @@ void Flit::FreeAll() {
     delete _all.top();
     _all.pop();
   }
+}
+
+void Flit::Invalidate()
+{
+  valid = false;
 }

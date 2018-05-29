@@ -201,6 +201,10 @@ protected:
 
   map<string, Stats *> _stats;
 
+  //for keeping track of invalid flits
+  long long invalid_flits;
+  long long total_flits;
+
   // ============ Simulation parameters ============ 
 
   enum eSimState { warming_up, running, draining, done };
