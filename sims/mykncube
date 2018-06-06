@@ -1,0 +1,25 @@
+//Netowrk options
+topology = torus;
+k   = 4;
+n   = 2;
+c   = 4;
+routing_function = dim_order;
+x   = 4;
+y   = 4;
+xr  = 2;
+yr  = 2;
+
+//Router options
+
+//traffic
+traffic = uniform;
+
+//Simulation Parameters
+sim_type = latency;
+
+//Power model params
+sim_power = 1;
+//power_output_file = pwr_tmp;//adjust via command line!
+tech_file = ./sims/techfile_65;
+channel_width = 128;
+channel_sweep = 0;
