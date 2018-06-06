@@ -1,0 +1,25 @@
+// 65 nm
+H_INVD2  = 8;//int
+W_INVD2  = 3;//int
+H_DFQD1  = 8;//int
+W_DFQD1  = 16;//int
+H_ND2D1  = 8;//int
+W_ND2D1  = 3;//int
+H_SRAM  = 8;//int
+W_SRAM  = 6;//int
+Vdd  = 1.0;//float
+R  = 1200.0;//float
+IoffSRAM  = 0.0000002;//float // 0.0000002
+IoffP  = 0.000005;//float.
+IoffN  = 0.000002;//float.
+Cg_pwr  = 0.0000000000000007;//float
+Cd_pwr  = 0.00000000000000126;//float
+Cgdl  = 0.00000000000000029;//float
+Cg  = 0.0000000000000012;//float
+Cd  = 0.0000000000000007;//float
+LAMBDA  = 0.0325;//float
+MetalPitch  = 0.0001;//float. 1
+Rw  = 2000.0;//float
+Cw_gnd  = 0.0000000000000354;//float
+Cw_cpl  = 0.0000000000000615;//float
+wire_length  = 1.0;//float
