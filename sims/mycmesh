@@ -1,5 +1,5 @@
 //Netowrk options
-topology = cmesh;
+topology = mesh;
 k   = 4;
 n   = 2;
 c   = 4;
