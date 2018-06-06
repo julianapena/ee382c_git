@@ -3,7 +3,7 @@ topology = torus;
 k   = 4;
 n   = 2;
 c   = 4;
-routing_function = dim_order;
+routing_function = xy_yx;
 // switch allocator
 // vc_allocator = ;
 // sw_allocator = ;

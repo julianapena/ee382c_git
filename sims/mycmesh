@@ -1,9 +1,9 @@
 //Netowrk options
-topology = cmesh;
+topology = mesh;
 k   = 4;
 n   = 2;
 c   = 4;
-routing_function = ugal;
+routing_function = xy_yx;
 // switch allocator
 // vc_allocator = ;
 // sw_allocator = ;

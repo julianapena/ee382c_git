@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#./src/booksim ./sims/mycmesh >./sims/cmesh/first.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.10 > ./sims/cmesh/uniform_10.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.20 > ./sims/cmesh/uniform_20.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.30 > ./sims/cmesh/uniform_30.txt &
+wait
+echo First batch!
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.40 > ./sims/cmesh/uniform_40.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.50 > ./sims/cmesh/uniform_50.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.60 > ./sims/cmesh/uniform_60.txt &
+wait
+echo Second batch!
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.70 > ./sims/cmesh/uniform_70.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.80 > ./sims/cmesh/uniform_80.txt &
+./src/booksim ./sims/mycmesh traffic=uniform injection_rate=0.90 > ./sims/cmesh/uniform_90.txt &
+wait
+echo done!

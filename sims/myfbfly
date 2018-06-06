@@ -3,7 +3,7 @@ topology = flatfly;
 k   = 4;
 n   = 2;
 c   = 4;
-routing_function = xyyx;
+routing_function = ugal;
 // switch allocator
 // vc_allocator = ;
 // sw_allocator = ;
