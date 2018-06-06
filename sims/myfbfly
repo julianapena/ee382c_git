@@ -22,6 +22,7 @@ st_final_delay = 1;
 //traffic
 traffic = uniform;//adjust via command line!
 injection_rate = 0.1;//adjust via command line!
+packet_size = 2;
 
 //Simulation Parameters
 sim_type = throughput;
