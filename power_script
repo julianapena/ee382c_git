@@ -1,16 +1,11 @@
 #!/bin/bash
 
 #./src/booksim ./sims/mycmesh >./sims/cmesh/first.txt &
-./src/booksim ./sims/mycmesh
-wait
-echo ==========================================================================
-echo NEXT SIM
-echo ==========================================================================
 ./src/booksim ./sims/myfbfly
 wait
 echo ==========================================================================
 echo NEXT SIM
 echo ==========================================================================
-./src/booksim ./sims/mykncube
+./src/booksim ./sims/
 wait
 echo done!

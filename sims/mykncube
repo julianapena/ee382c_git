@@ -10,12 +10,21 @@ xr  = 2;
 yr  = 2;
 
 //Router options
+num_vcs     = 4;
+vc_buf_size = 8;
+
+credit_delay   = 1;
+routing_delay  = 1;
+vc_alloc_delay = 1;
+sw_alloc_delay = 1;
+st_final_delay = 1;
 
 //traffic
-traffic = uniform;
+traffic = uniform;//adjust via command line!
+injection_rate = 0.1;//adjust via command line!
 
 //Simulation Parameters
-sim_type = latency;
+sim_type = throughput;
 
 //Power model params
 sim_power = 1;
