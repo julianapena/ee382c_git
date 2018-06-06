@@ -85,7 +85,7 @@ void FlitChannel::ReadInputs() {
 void FlitChannel::WriteOutputs() {
   Channel<Flit>::WriteOutputs();
   //For invalidating flit 
-  if (_output && (rand() % 3 == 0)) _output->Invalidate();
+  if (_output && (rand() % 10000 == 0)) _output->Invalidate();
 
   if(_output && _output->watch) {
     *gWatchOut << GetSimTime() << " | " << FullName() << " | "

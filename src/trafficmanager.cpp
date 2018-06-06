@@ -983,12 +983,12 @@ void TrafficManager::_Step( )
                     if(f->tail) {
                         ++_accepted_packets[f->cl][n];
                     }
-                } else {
-                    if (!f->valid) {
-                        ++invalid_flits;
-                    }
-                    ++total_flits;
                 }
+                if (!f->valid) {
+                    ++invalid_flits;
+                }
+                ++total_flits;
+                
             }
 
             Credit * const c = _net[subnet]->ReadCredit( n );
@@ -2174,8 +2174,8 @@ void TrafficManager::DisplayOverallStats( ostream & os ) const {
            << " (" << _total_sims << " samples)" << endl;
 #endif
         //Couting number of invalid flits
-        os << "Invalid flits: " << invalid_flits << endl;
         os << "Total flits: " << total_flits << endl;
+        os << "Invalid flits: " << invalid_flits << endl;
     }
   
 }

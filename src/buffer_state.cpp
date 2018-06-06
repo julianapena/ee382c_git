@@ -427,25 +427,25 @@ void BufferState::FeedbackSharedBufferPolicy::FreeSlotFor(int vc)
   SharedBufferPolicy::FreeSlotFor(vc);
   assert(!_flit_sent_time[vc].empty());
   int const last_rtt = GetSimTime() - _flit_sent_time[vc].front();
-#ifdef DEBUG_FEEDBACK
+  #ifdef DEBUG_FEEDBACK
   cerr << FullName() << ": Probe for VC "
        << vc << " came back after "
        << last_rtt << " cycles."
        << endl;
-#endif
+  #endif
   _flit_sent_time[vc].pop();
   
   int rtt = _ComputeRTT(vc, last_rtt);
-#ifdef DEBUG_FEEDBACK
+  #ifdef DEBUG_FEEDBACK
   int old_rtt = _round_trip_time[vc];
   if(rtt != old_rtt) {
     cerr << FullName() << ": Updating RTT estimate for VC "
-	 << vc << " from "
-	 << old_rtt << " to "
-	 << rtt << " cycles."
-	 << endl;
+      	 << vc << " from "
+      	 << old_rtt << " to "
+      	 << rtt << " cycles."
+      	 << endl;
   }
-#endif
+  #endif
   _round_trip_time[vc] = rtt;
 
   int limit = _ComputeLimit(rtt);
@@ -458,14 +458,14 @@ void BufferState::FeedbackSharedBufferPolicy::FreeSlotFor(int vc)
 #ifdef DEBUG_FEEDBACK
   if(limit != old_limit) {
     cerr << FullName() << ": Occupancy limit for VC "
-	 << vc << " changed from "
-	 << old_limit << " to "
-	 << limit << " slots."
-	 << endl;
+      	 << vc << " changed from "
+      	 << old_limit << " to "
+      	 << limit << " slots."
+      	 << endl;
     cerr << FullName() << ": Total mapped buffer space changed from "
-	 << old_mapped_size << " to "
-	 << _total_mapped_size << " slots."
-	 << endl;
+      	 << old_mapped_size << " to "
+      	 << _total_mapped_size << " slots."
+      	 << endl;
   }
 #endif
 }
@@ -580,8 +580,7 @@ void BufferState::ProcessCredit( Credit const * const c )
 
     assert( ( vc >= 0 ) && ( vc < _vcs ) );
 
-    if ( ( _wait_for_tail_credit ) && 
-	 ( _in_use_by[vc] < 0 ) ) {
+    if ( ( _wait_for_tail_credit ) &&  ( _in_use_by[vc] < 0 ) ) {
       ostringstream err;
       err << "Received credit for idle VC " << vc;
       Error( err.str() );
@@ -601,14 +600,14 @@ void BufferState::ProcessCredit( Credit const * const c )
       _in_use_by[vc] = -1;
     }
 
-#ifdef TRACK_BUFFERS
+    #ifdef TRACK_BUFFERS
     assert(!_outstanding_classes[vc].empty());
     int cl = _outstanding_classes[vc].front();
     _outstanding_classes[vc].pop();
     assert((cl >= 0) && (cl < _classes));
     assert(_class_occupancy[cl] > 0);
     --_class_occupancy[cl];
-#endif
+    #endif
 
     _buffer_policy->FreeSlotFor(vc);
 
